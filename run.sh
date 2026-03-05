@@ -135,13 +135,12 @@ fi
 # Remove existing container if it exists
 docker rm "$APP_NAME" >/dev/null 2>&1 || true
 
-# Run the container with network isolation
+# Run the container with localhost-only binding for privacy
 if [[ -n "$DOCKER_PLATFORM" ]]; then
     docker run -d \
         --platform "$DOCKER_PLATFORM" \
         --name "$APP_NAME" \
-        --network none \
-        -p "$PORT:8501" \
+        -p "127.0.0.1:$PORT:8501" \
         -v "$SCRIPT_DIR/data:/workspace/data:ro" \
         -v "$SCRIPT_DIR/output:/workspace/output" \
         -v "$SCRIPT_DIR/audit:/workspace/audit" \
@@ -151,8 +150,7 @@ if [[ -n "$DOCKER_PLATFORM" ]]; then
 else
     docker run -d \
         --name "$APP_NAME" \
-        --network none \
-        -p "$PORT:8501" \
+        -p "127.0.0.1:$PORT:8501" \
         -v "$SCRIPT_DIR/data:/workspace/data:ro" \
         -v "$SCRIPT_DIR/output:/workspace/output" \
         -v "$SCRIPT_DIR/audit:/workspace/audit" \

@@ -117,13 +117,12 @@ if !errorlevel!==0 (
 REM Remove existing container if it exists
 docker rm %APP_NAME% >nul 2>&1
 
-REM Run the container with network isolation
+REM Run the container with localhost-only binding for privacy
 if not "!DOCKER_PLATFORM!"=="" (
     docker run -d ^
         --platform !DOCKER_PLATFORM! ^
         --name %APP_NAME% ^
-        --network none ^
-        -p %PORT%:8501 ^
+        -p 127.0.0.1:%PORT%:8501 ^
         -v "%SCRIPT_DIR%data:/workspace/data:ro" ^
         -v "%SCRIPT_DIR%output:/workspace/output" ^
         -v "%SCRIPT_DIR%audit:/workspace/audit" ^
@@ -133,8 +132,7 @@ if not "!DOCKER_PLATFORM!"=="" (
 ) else (
     docker run -d ^
         --name %APP_NAME% ^
-        --network none ^
-        -p %PORT%:8501 ^
+        -p 127.0.0.1:%PORT%:8501 ^
         -v "%SCRIPT_DIR%data:/workspace/data:ro" ^
         -v "%SCRIPT_DIR%output:/workspace/output" ^
         -v "%SCRIPT_DIR%audit:/workspace/audit" ^
