@@ -4,6 +4,10 @@ FROM python:3.11-slim AS builder
 WORKDIR /build
 COPY requirements.txt .
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN python -m venv /venv \
     && /venv/bin/pip install --no-cache-dir -r requirements.txt \
     && /venv/bin/python -m spacy download en_core_web_lg

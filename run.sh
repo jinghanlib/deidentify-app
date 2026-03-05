@@ -16,6 +16,7 @@ NC='\033[0m' # No Color
 APP_NAME="deidentify-app"
 IMAGE_NAME="deidentify-app"
 PORT=8501
+DOCKER_PLATFORM="${DEID_DOCKER_PLATFORM:-}"
 
 echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║     De-Identification App - Local PII Removal Tool         ║${NC}"
@@ -34,6 +35,23 @@ command_exists() {
 # Function to check if Docker is running
 docker_running() {
     docker info >/dev/null 2>&1
+}
+
+# Function to determine Docker platform for reliable dependency installation
+detect_docker_platform() {
+    if [[ -n "$DOCKER_PLATFORM" ]]; then
+        return
+    fi
+
+    case "$(uname -m)" in
+        arm64|aarch64)
+            # Prefer amd64 on ARM hosts to maximize availability of prebuilt wheels
+            DOCKER_PLATFORM="linux/amd64"
+            ;;
+        *)
+            DOCKER_PLATFORM=""
+            ;;
+    esac
 }
 
 # Step 1: Check if Docker is installed
@@ -65,6 +83,11 @@ if ! docker_running; then
 fi
 echo -e "       ${GREEN}✓ Docker is running${NC}"
 
+detect_docker_platform
+if [[ -n "$DOCKER_PLATFORM" ]]; then
+    echo "       Using Docker platform override: $DOCKER_PLATFORM"
+fi
+
 # Step 3: Create output directories if needed
 echo -e "${YELLOW}[3/5]${NC} Ensuring output directories exist..."
 mkdir -p "$SCRIPT_DIR/data"
@@ -89,7 +112,11 @@ if [ "$BUILD_NEEDED" = true ]; then
     echo -e "${YELLOW}Building Docker image (this may take 5-10 minutes on first run)...${NC}"
     echo "The SpaCy language model (~560MB) will be downloaded during build."
     echo ""
-    docker build -t "$IMAGE_NAME" .
+    if [[ -n "$DOCKER_PLATFORM" ]]; then
+        docker build --platform "$DOCKER_PLATFORM" -t "$IMAGE_NAME" .
+    else
+        docker build -t "$IMAGE_NAME" .
+    fi
     echo ""
     echo -e "       ${GREEN}✓ Image built successfully${NC}"
 else
@@ -109,16 +136,30 @@ fi
 docker rm "$APP_NAME" >/dev/null 2>&1 || true
 
 # Run the container with network isolation
-docker run -d \
-    --name "$APP_NAME" \
-    --network none \
-    -p "$PORT:8501" \
-    -v "$SCRIPT_DIR/data:/workspace/data:ro" \
-    -v "$SCRIPT_DIR/output:/workspace/output" \
-    -v "$SCRIPT_DIR/audit:/workspace/audit" \
-    --memory="4g" \
-    --cpus="2.0" \
-    "$IMAGE_NAME" >/dev/null
+if [[ -n "$DOCKER_PLATFORM" ]]; then
+    docker run -d \
+        --platform "$DOCKER_PLATFORM" \
+        --name "$APP_NAME" \
+        --network none \
+        -p "$PORT:8501" \
+        -v "$SCRIPT_DIR/data:/workspace/data:ro" \
+        -v "$SCRIPT_DIR/output:/workspace/output" \
+        -v "$SCRIPT_DIR/audit:/workspace/audit" \
+        --memory="4g" \
+        --cpus="2.0" \
+        "$IMAGE_NAME" >/dev/null
+else
+    docker run -d \
+        --name "$APP_NAME" \
+        --network none \
+        -p "$PORT:8501" \
+        -v "$SCRIPT_DIR/data:/workspace/data:ro" \
+        -v "$SCRIPT_DIR/output:/workspace/output" \
+        -v "$SCRIPT_DIR/audit:/workspace/audit" \
+        --memory="4g" \
+        --cpus="2.0" \
+        "$IMAGE_NAME" >/dev/null
+fi
 
 echo -e "       ${GREEN}✓ Application started${NC}"
 

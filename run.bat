@@ -7,6 +7,7 @@ setlocal enabledelayedexpansion
 set APP_NAME=deidentify-app
 set IMAGE_NAME=deidentify-app
 set PORT=8501
+set DOCKER_PLATFORM=%DEID_DOCKER_PLATFORM%
 
 echo ================================================================
 echo      De-Identification App - Local PII Removal Tool
@@ -47,6 +48,17 @@ if %errorlevel% neq 0 (
 )
 echo       [OK] Docker is running
 
+REM Determine Docker platform for reliable dependency installation
+if "!DOCKER_PLATFORM!"=="" (
+    if /I "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+        REM Prefer amd64 on ARM hosts to maximize availability of prebuilt wheels
+        set DOCKER_PLATFORM=linux/amd64
+    )
+)
+if not "!DOCKER_PLATFORM!"=="" (
+    echo       Using Docker platform override: !DOCKER_PLATFORM!
+)
+
 REM Step 3: Create output directories if needed
 echo [3/5] Ensuring output directories exist...
 if not exist "%SCRIPT_DIR%data" mkdir "%SCRIPT_DIR%data"
@@ -75,7 +87,11 @@ if !BUILD_NEEDED!==1 (
     echo Building Docker image (this may take 5-10 minutes on first run)...
     echo The SpaCy language model (~560MB) will be downloaded during build.
     echo.
-    docker build -t %IMAGE_NAME% .
+    if not "!DOCKER_PLATFORM!"=="" (
+        docker build --platform !DOCKER_PLATFORM! -t %IMAGE_NAME% .
+    ) else (
+        docker build -t %IMAGE_NAME% .
+    )
     if !errorlevel! neq 0 (
         echo.
         echo ERROR: Docker build failed.
@@ -102,16 +118,30 @@ REM Remove existing container if it exists
 docker rm %APP_NAME% >nul 2>&1
 
 REM Run the container with network isolation
-docker run -d ^
-    --name %APP_NAME% ^
-    --network none ^
-    -p %PORT%:8501 ^
-    -v "%SCRIPT_DIR%data:/workspace/data:ro" ^
-    -v "%SCRIPT_DIR%output:/workspace/output" ^
-    -v "%SCRIPT_DIR%audit:/workspace/audit" ^
-    --memory=4g ^
-    --cpus=2.0 ^
-    %IMAGE_NAME% >nul
+if not "!DOCKER_PLATFORM!"=="" (
+    docker run -d ^
+        --platform !DOCKER_PLATFORM! ^
+        --name %APP_NAME% ^
+        --network none ^
+        -p %PORT%:8501 ^
+        -v "%SCRIPT_DIR%data:/workspace/data:ro" ^
+        -v "%SCRIPT_DIR%output:/workspace/output" ^
+        -v "%SCRIPT_DIR%audit:/workspace/audit" ^
+        --memory=4g ^
+        --cpus=2.0 ^
+        %IMAGE_NAME% >nul
+) else (
+    docker run -d ^
+        --name %APP_NAME% ^
+        --network none ^
+        -p %PORT%:8501 ^
+        -v "%SCRIPT_DIR%data:/workspace/data:ro" ^
+        -v "%SCRIPT_DIR%output:/workspace/output" ^
+        -v "%SCRIPT_DIR%audit:/workspace/audit" ^
+        --memory=4g ^
+        --cpus=2.0 ^
+        %IMAGE_NAME% >nul
+)
 
 if %errorlevel% neq 0 (
     echo.
