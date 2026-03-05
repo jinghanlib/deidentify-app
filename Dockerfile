@@ -4,8 +4,9 @@ FROM python:3.11-slim AS builder
 WORKDIR /build
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt \
-    && /install/bin/python -m spacy download en_core_web_lg
+RUN python -m venv /venv \
+    && /venv/bin/pip install --no-cache-dir -r requirements.txt \
+    && /venv/bin/python -m spacy download en_core_web_lg
 
 # ── Stage 2: Production image ──
 FROM python:3.11-slim
@@ -23,9 +24,9 @@ RUN groupadd -r appuser && useradd -r -g appuser -d /home/appuser -s /sbin/nolog
 
 WORKDIR /app
 
-# Copy installed packages from builder
-COPY --from=builder /install /usr/local
-COPY --from=builder /root/.local /root/.local
+# Copy virtualenv from builder
+COPY --from=builder /venv /venv
+ENV PATH="/venv/bin:$PATH"
 
 # Copy application code
 COPY app/ ./app/
