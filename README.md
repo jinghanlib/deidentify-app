@@ -15,7 +15,7 @@ A local-only tool for removing personally identifiable information (PII) from re
 - **HIPAA Safe Harbor Compliant** - Detects all 18 identifier types
 - **Multiple Anonymization Strategies** - Redact, mask, hash, or replace with fake data
 - **Audit Logs for IRB** - Document every detection and action taken
-- **Offline Processing** - Docker runs with `--network none` for maximum security
+- **Local-Only Access** - App is bound to `127.0.0.1:8501` by default
 - **User-Friendly UI** - Streamlit interface designed for non-technical researchers
 - **Supports CSV, Excel, and Text** - Common research data formats
 
@@ -46,23 +46,8 @@ run.bat
 The launcher will:
 1. Check that Docker is installed and running
 2. Build the image (first time only, ~5-10 minutes)
-3. Start the container with network isolation
+3. Start the container with localhost-only port binding
 4. Open your browser to http://localhost:8501
-
-### Alternative: Using uv (for developers)
-
-```bash
-# Install uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install dependencies
-cd deidentify-app
-uv sync
-uv run python -m spacy download en_core_web_lg
-
-# Run the app
-uv run streamlit run app/main.py
-```
 
 ---
 
@@ -124,7 +109,7 @@ Download:
 
 This tool is designed with research data security in mind:
 
-- **Network Isolation**: Docker container runs with `--network none`
+- **Localhost Binding**: App is exposed only on `127.0.0.1:8501` by default
 - **No Cloud APIs**: All NLP processing uses local SpaCy models
 - **No Telemetry**: Streamlit telemetry is disabled
 - **Non-Root User**: Container runs as unprivileged user
@@ -189,7 +174,10 @@ Adjust detection sensitivity:
 ### Running Tests
 
 ```bash
-uv run pytest tests/ -v
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest tests/ -v
 ```
 
 ### Project Structure
