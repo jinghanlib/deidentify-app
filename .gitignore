@@ -1,0 +1,46 @@
+# CRITICAL: Never commit real participant data
+data/*
+!data/sample/
+!data/.gitkeep
+output/
+audit/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# uv
+.python-version
+uv.lock
+
+# Streamlit
+.streamlit/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Environment files (may contain secrets)
+.env
+.env.local
+*.env
+
+# Logs
+*.log
+logs/

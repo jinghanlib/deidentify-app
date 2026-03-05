@@ -1,0 +1,29 @@
+# De-Identification App - Docker Compose Configuration
+# Runs the app with network isolation for maximum data security
+
+services:
+  deidentify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: deidentify-app:latest
+    container_name: deidentify-app
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mount your real data here at runtime — it never enters the image
+      - ./data:/workspace/data:ro        # read-only input
+      - ./output:/workspace/output       # de-identified output
+      - ./audit:/workspace/audit         # audit logs
+    # CRITICAL: no network access at runtime — data never leaves your machine
+    # Note: healthcheck is disabled because it requires network access
+    network_mode: "none"
+    environment:
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    deploy:
+      resources:
+        limits:
+          memory: 4G                     # SpaCy lg model needs ~2GB
+          cpus: "2.0"
+    restart: "no"                        # don't auto-restart — this is a tool, not a service
+    # No healthcheck - incompatible with network_mode: none

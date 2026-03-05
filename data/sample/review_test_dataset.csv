@@ -1,0 +1,11 @@
+record_id,participant_id,notes,comments
+1,SUBJ-001,"Dr. Smith saw the patient on Monday. The patient mentioned her friend Nancy helps with medication reminders.","I met with Nancy at the clinic. Her number is 5551234567."
+2,SUBJ-002,"Patient reports improvement. Lives on Oak Street near the Johnson pharmacy. Takes medication at 8am daily.","My neighbor Bob gave me a ride to the appointment."
+3,SUBJ-003,"Referred by Dr. K. Lee at County Hospital. Patient's sister Mary is emergency contact.","Mary can be reached at mary_jones@email.com if needed."
+4,SUBJ-004,"The patient (initials: J.D.) works at Acme Corp. Has insurance through employer.","JD mentioned his wife Susan helps him remember appointments."
+5,SUBJ-005,"Follow-up for anxiety. Patient saw counselor Chen last week. MRN is MED-12345.","I saw Chen at the Maple Street office on Tuesday."
+6,SUBJ-006,"Patient ID ABC123 from Springfield clinic. Dr. Wong ordered lab work.","My ID number is ABC123. Labs done at Springfield Medical."
+7,SUBJ-007,"Patient mentioned son Tommy (age 8) has similar symptoms. Family history noted.","Tommy's school nurse called about his health forms."
+8,SUBJ-008,"Contacted via phone 555.987.6543. Patient prefers text messages.","You can text me at 555.987.6543 or email pat@test.org"
+9,SUBJ-009,"Insurance: Aetna policy #AET-998877. Copay waived per Dr. Rivera's note.","Dr Rivera was very helpful with the paperwork."
+10,SUBJ-010,"Patient lives at 42 Main St Apt 3B Boston MA 02101. Works from home.","My address is 42 Main St Apt 3B in Boston."
