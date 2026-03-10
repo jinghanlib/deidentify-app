@@ -16,8 +16,8 @@ A local-only tool for removing personally identifiable information (PII) from re
 
 | Method | Best For | Requirements |
 |--------|----------|--------------|
-| **Docker** (Recommended) | Non-technical users | Docker Desktop |
-| **uv** (Alternative) | Developers, advanced users | Python 3.11+, uv |
+| **Docker** | Non-technical users | Docker Desktop |
+
 
 ---
 
