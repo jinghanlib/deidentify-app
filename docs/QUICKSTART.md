@@ -21,7 +21,7 @@ A local-only tool for removing personally identifiable information (PII) from re
 
 ---
 
-## Option 1: Docker (Recommended)
+## Docker
 
 Docker bundles everything needed to run the app, including the ~560MB language model. Once built, the app runs completely offline with no network access.
 
@@ -99,50 +99,6 @@ docker stop deidentify-app
 ```bash
 ./run.sh --rebuild    # Mac/Linux
 run.bat --rebuild     # Windows
-```
-
----
-
-## Option 2: Using uv (Alternative)
-
-[uv](https://docs.astral.sh/uv/) is a fast Python package manager. Use this method if you prefer not to use Docker or need to modify the code.
-
-### Step 1: Install uv
-
-**Mac/Linux:**
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-**Windows (PowerShell):**
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-### Step 2: Install Dependencies
-
-```bash
-cd deidentify-app
-
-# Install all dependencies (creates .venv automatically)
-uv sync
-
-# Download the SpaCy language model (~560MB)
-uv run python -m spacy download en_core_web_lg
-```
-
-### Step 3: Run the App
-
-```bash
-uv run streamlit run app/main.py
-```
-
-Open your browser to http://localhost:8501
-
-### Running Tests
-
-```bash
-uv run pytest tests/ -v
 ```
 
 ---
@@ -226,19 +182,6 @@ Download:
 
 **Out of memory during build**
 - Increase Docker memory: Docker Desktop → Settings → Resources → Memory → 4GB+
-
-### uv Issues
-
-**"uv: command not found"**
-- Restart your terminal after installing uv
-- Or run: `source ~/.bashrc` (Linux) / restart PowerShell (Windows)
-
-**"No Python 3.11+"**
-- Install Python 3.11 or later: https://www.python.org/downloads/
-
-**SpaCy model download fails**
-- Ensure you have internet connection
-- Try: `uv run python -m spacy validate`
 
 ### App Issues
 
